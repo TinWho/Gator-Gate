@@ -1,8 +1,9 @@
 /*
  * Code Snippet:       Gator-Gate for bbPress
  * Description:        Advanced per-forum content filtration, clipboard copy-paste baggage reduction.
- * Version:                 0.1.0-Alpah
- * License:                 GPL-2.0-or-later
+ * Version:            0.1.0-Alpa
+ * AUTHOR:             Tin Who (https://tinfoilwho.com)
+ * License:            GPL-2.0-or-later
  *
  * AI-generated/AI-assisted code provided AS-IS.
  * User assumes all risk and responsibility for use.
