@@ -139,15 +139,16 @@ function ugate_bbpress_filter_content($content, $rules = array()) {
     }
 
     // Strip dangerous object/script nodes unconditionally
-    $dangerous_before = array('script', 'object', 'embed', 'form');
-    foreach ($dangerous_before as $tag) {
-        $count = preg_match_all('/<' . $tag . '\b.*?<\/' . $tag . '>/is', $content, $matches);
-        if ($count && !empty($rules['debug_report'])) {
-            ugate_bbpress_add_debug_report('Removed unsafe ' . $tag . ' blocks: ' . $count);
-        }
+$dangerous_tags = array('script', 'object', 'embed', 'form');
+foreach ($dangerous_tags as $tag) {
+    $count = preg_match_all('/<' . $tag . '\b[^>]*>(.*?)<\/' . $tag . '>/is', $content, $matches);
+    if ($count && !empty($rules['debug_report'])) {
+        ugate_bbpress_add_debug_report('Removed unsafe ' . $tag . ' blocks: ' . $count);
     }
-    $content = preg_replace('/<(script|object|embed|form)\b.*?<\/\1>/is', '', $content);
+}
+$content = preg_replace('/<(script|object|embed|form)\b[^>]*>.*?<\/\1>/is', '', $content);
 
+    
     /*
     ----------------──────────────────────────────────────────────
     THE BLANK SLATE WHITELIST ENGINE (STRICT DEFAULT DENY)
