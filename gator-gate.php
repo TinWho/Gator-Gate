@@ -147,7 +147,6 @@ foreach ($dangerous_tags as $tag) {
     }
 }
 $content = preg_replace('/<(script|object|embed|form)\b[^>]*>.*?<\/\1>/is', '', $content);
-
     
     /*
     ----------------──────────────────────────────────────────────
