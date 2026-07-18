@@ -222,10 +222,10 @@ $content = preg_replace('/<(script|object|embed|form)\b[^>]*>.*?<\/\1>/is', '', 
     // Run final text filtering passing sequence using our custom whitelist
     $content = wp_kses($content, $allowed_tags);
 
-    if (!empty($rules['debug_report'])) {
-        $final_size = strlen($content);
-        ugate_bbpress_add_debug_report('uGate filter finished. Footprint altered by: ' . ($original_size - $final_size) . ' bytes.');
-    }
+    if (!empty($rules['allow_styling']) || !empty($rules['allow_headings'])) {
+    $allowed_tags['p'] = array();
+    $allowed_tags['br'] = array();
+}
 
     return $content;
 }
@@ -351,7 +351,11 @@ function ugate_bbpress_clean_paste($content) {
 
     // 6. Reduce structural whitespace bloat
     $before_spaces = strlen($content);
-    $content = preg_replace('/\s{3,}/', ' ', $content);
+    if (!empty($rules['allow_styling']) || !empty($rules['allow_headings'])) {
+    $content = preg_replace('/(?<=\S)\s+(?=\S)/', ' ', $content);
+} else {
+    $content = preg_replace('/\s+/', ' ', $content);
+}
     $after_spaces = strlen($content);
     if ($debug && $before_spaces > $after_spaces) {
         ugate_bbpress_add_debug_report('Reduced excess spacing by: ' . ($before_spaces - $after_spaces) . ' bytes');
