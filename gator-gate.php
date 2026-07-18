@@ -350,16 +350,19 @@ function ugate_bbpress_clean_paste($content) {
     }
 
     // 6. Reduce structural whitespace bloat
-    $before_spaces = strlen($content);
-    if (!empty($rules['allow_styling']) || !empty($rules['allow_headings'])) {
-    $content = preg_replace('/(?<=\S)\s+(?=\S)/', ' ', $content);
-} else {
-    $content = preg_replace('/\s+/', ' ', $content);
-}
-    $after_spaces = strlen($content);
-    if ($debug && $before_spaces > $after_spaces) {
-        ugate_bbpress_add_debug_report('Reduced excess spacing by: ' . ($before_spaces - $after_spaces) . ' bytes');
-    }
+       $before_spaces = strlen($content);
+       
+       // Match horizontal whitespace (spaces/tabs) only, preserving newlines and <br> tags
+       if (!empty($rules['allow_styling']) || !empty($rules['allow_headings'])) {
+           $content = preg_replace('/(?<=\S)[ \t]+(?=\S)/', ' ', $content);
+       } else {
+           $content = preg_replace('/[ \t]+/', ' ', $content);
+       }
+       
+       $after_spaces = strlen($content);
+       if ($debug && $before_spaces > $after_spaces) {
+           ugate_bbpress_add_debug_report('Reduced excess spacing by: ' . ($before_spaces - $after_spaces) . ' bytes');
+       }
 
     // 7. Normalise font declarations
     $fonts = preg_match_all('/font-family\s*:/i', $content, $matches);
