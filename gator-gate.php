@@ -9,7 +9,6 @@
  * User assumes all risk and responsibility for use.
  */
 
-
 /**
  * Plugin Name: Gator Gate Firewall - Part 1 (Forum Attributes UI)
  * Description: Registers an isolated Gutenberg-compatible custom metabox for bbPress Forums to guarantee state retention across saves.
@@ -138,6 +137,7 @@ function gator_gate_run_contextual_scrubber( $incoming_payload ) {
         for ( $i = 1; $i <= 6; $i++ ) {
             $active_ports[ 'port_' . $i ] = get_post_meta( $forum_id, '_gator_gate_port_' . $i, true );
         }
+     
     }
 
     // Rem: Track initial raw character count trace
@@ -166,27 +166,53 @@ function gator_gate_run_contextual_scrubber( $incoming_payload ) {
     ============================================================================
     [REM BLOCK] PORT 1 MODULE: HEADINGS & TABLES GUARD
     ============================================================================
-    */
-    if ( ! empty( $active_ports['port_1'] ) ) {
-        $incoming_payload = preg_replace( '/<(h[1-6]|table|tr|td|th|thead|tbody)\b[^>]*>/i', '<$1>', $incoming_payload );
-    }
+*/
+if ( ! empty( $active_ports['port_1'] ) ) {
+
+    // Clean opening heading tags
+    $incoming_payload = preg_replace(
+        '/<(h[1-6])[^>]*>/i',
+        '<$1>',
+        $incoming_payload
+    );
+
+    // Clean table tags
+    $incoming_payload = preg_replace(
+        '/<(table|thead|tbody|tr|th|td)[^>]*>/i',
+        '<$1>',
+        $incoming_payload
+    );
+}
     /*==========================================================================*/
 
 
-    /*
-    ============================================================================
-    [REM BLOCK] PORT 2 MODULE: IMAGES GUARD
-    ============================================================================
-    */
-    if ( ! empty( $active_ports['port_2'] ) ) {
-        $incoming_payload = preg_replace_callback( '/<img\b([^>]*)>/i', function( $hits ) {
-            if ( preg_match( '/src=["\']([^"\']+\.(jpg|jpeg|png))(["\']|\?)/i', $hits ) ) {
-                preg_match( '/src=["\']([^"\']+)["\']/i', $hits, $url_extract );
-                return '<img src="' . esc_url( $url_extract ) . '" />';
-            }
-            return '';
-        }, $incoming_payload );
-    }
+
+/*
+============================================================================
+[REM BLOCK] PORT 2 MODULE: IMAGES OPEN PASS
+============================================================================
+*/
+if ( ! empty( $active_ports['port_2'] ) ) {
+
+    // Port 2 OPEN:
+    // Allow all image tags exactly as supplied.
+    // No format restriction.
+    // No URL filtering.
+    // No attribute stripping.
+
+    $incoming_payload = preg_replace_callback(
+        '/<img\b[^>]*>/i',
+        function ( $matches ) {
+
+            return $matches[0];
+
+        },
+        $incoming_payload
+    );
+
+}
+/*==========================================================================*/
+/*==========================================================================*/
     /*==========================================================================*/
 
 
@@ -260,6 +286,10 @@ function gator_gate_run_contextual_scrubber( $incoming_payload ) {
     $incoming_payload .= "\n\n<!-- GATOR_GATE DEBUG [Forum:ID {$forum_id}]: [Before: {$count_pre_firewall} chars] -> [After: {$count_post_firewall} chars]. Purged {$vaporised_bytes} formatting bytes. -->";
 
     return $incoming_payload;
+
 }
+
+//end
+
 //end
 
