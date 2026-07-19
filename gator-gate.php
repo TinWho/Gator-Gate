@@ -9,13 +9,6 @@
  * User assumes all risk and responsibility for use.
  */
 
-/**
- * Plugin Name: Gator Gate Firewall - Part 1 (Forum Attributes UI)
- * Description: Registers an isolated Gutenberg-compatible custom metabox for bbPress Forums to guarantee state retention across saves.
- * Version: 1.3.0
- * Author: AI Collaborator
- * License: GPL2
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Block direct access
@@ -212,9 +205,6 @@ if ( ! empty( $active_ports['port_2'] ) ) {
 
 }
 /*==========================================================================*/
-/*==========================================================================*/
-    /*==========================================================================*/
-
 
     /*
     ============================================================================
