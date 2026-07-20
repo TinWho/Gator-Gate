@@ -10,16 +10,16 @@ Content filtering is handled via simple checkboxes when creating or editing any 
 
 Opening and closing a port is a simple checkbox selection when you create/edit a forum.
 
-* **[ ] PORT 1:** HEADINGS ALLOWED
-* **[ ] PORT 2:** IMAGES ALLOWED
-* **[ ] PORT 3:** VIDEOS ALLOWED
-* **[ ] PORT 4:** TABLES ALLOWED
-* **[ ] PORT 5:** COLOURS ALLOWED
-* **[ ] PORT 6:** FONTS ALLOWED
+### * **[ ] PORT 1:** HEADINGS ALLOWED
+### * **[ ] PORT 2:** IMAGES ALLOWED
+### * **[ ] PORT 3:** VIDEOS ALLOWED
+### * **[ ] PORT 4:** TABLES ALLOWED
+### * **[ ] PORT 5:** COLOURS ALLOWED
+### * **[ ] PORT 6:** FONTS ALLOWED
 
 
 
-Installation & Testing
+##Installation & Testing
 
 This project is currently distributed as standalone PHP code snippets.
 Test all snippets in a sandbox or staging environment first. 
