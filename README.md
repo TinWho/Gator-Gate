@@ -8,13 +8,14 @@ Gator-Gate gives you granular control over what rich text, media, and markup are
 ### Port Control Management
 Content filtering is handled via simple checkboxes when creating or editing any individual forum. The default setting everything is stripped to plain text and spacing. When a port is allowed, HTML content is allowed to pass through the firewall to be saved. Resulting in a cleaner database with improved read speeds and scaling. While naturally reducing any resources and hosting costs needed.    
 
-Opening and closing a port is a simple checkbox selection when you create/edit a forum. 
-  []  PORT 1: HEADINGS ALLOWED
-  []  PORT 2: IMAGES ALLOWED
-  []  PORT 3: VIDEOS ALLOWED
-  []  PORT 4: TABLES ALLOWED
-  []  PORT 5: COLOURS ALLOWED
-  []  PORT 6: FONTS ALLOWED
+Opening and closing a port is a simple checkbox selection when you create/edit a forum.
+
+  []  PORT 1: HEADINGS ALLOWED,
+  []  PORT 2: IMAGES ALLOWED,
+  []  PORT 3: VIDEOS ALLOWED,
+  []  PORT 4: TABLES ALLOWED,
+  []  PORT 5: COLOURS ALLOWED,
+  []  PORT 6: FONTS ALLOWED,
 
 
 Installation & Testing
