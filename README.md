@@ -46,7 +46,6 @@ The easiest installation method is to copy and paste the snippets into a WordPre
 
 
 
-License
 
 Licensed under GPL v2 or later.
 
