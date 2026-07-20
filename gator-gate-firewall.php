@@ -1,5 +1,5 @@
 /*
- * Code Snippet:       Gator-Gate for bbPress
+ * Code Snippet:       Gator-Gate-Firewall for bbPress
  * Description:        Advanced per-forum content filtration, clipboard copy-paste baggage reduction.
  * Version:            0.1.0-Alpa
  * AUTHOR:             Tin Who (https://tinfoilwho.com)
@@ -9,6 +9,13 @@
  * User assumes all risk and responsibility for use.
  */
 
+/**
+ * Plugin Name: Gator Gate Firewall - Part 1 (Forum Attributes UI)
+ * Description: Registers isolated Gator Gate firewall port controls for bbPress Forums with forum-specific content permissions.
+ * Version: 1.3.0
+ * Author: AI Collaborator
+ * License: GPL2
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Block direct access
@@ -36,13 +43,13 @@ function gator_gate_render_metabox_content( $post ) {
     wp_nonce_field( 'gator_gate_secure_save_action', 'gator_gate_secure_save_field' );
 
     $gator_gate_ports = [
-        'port_1' => 'PORT 1: HEADINGS & TABLES',
-        'port_2' => 'PORT 2: IMAGES ALLOWED',
-        'port_3' => 'PORT 3: VIDEOS ALLOWED',
-        'port_4' => 'PORT 4: LINKS ALLOWED',
-        'port_5' => 'PORT 5: COLORS ALLOWED',
-        'port_6' => 'PORT 6: FONTS ALLOWED',
-    ];
+    'port_1' => 'PORT 1: HEADINGS ALLOWED',
+    'port_2' => 'PORT 2: IMAGES ALLOWED',
+    'port_3' => 'PORT 3: VIDEOS ALLOWED',
+    'port_4' => 'PORT 4: TABLES ALLOWED',
+    'port_5' => 'PORT 5: COLOURS ALLOWED',
+    'port_6' => 'PORT 6: FONTS ALLOWED',
+];
 
     echo '<p style="font-size:12px; color:#646970; margin-bottom:12px;">Open specific isolated firewall ports for this forum container:</p>';
 
@@ -155,23 +162,16 @@ function gator_gate_run_contextual_scrubber( $incoming_payload ) {
     $incoming_payload = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $incoming_payload );
     $incoming_payload = preg_replace( '/\x{200B}|\x{200C}|\x{200D}|\x{FEFF}/u', '', $incoming_payload );
 
-    /*
-    ============================================================================
-    [REM BLOCK] PORT 1 MODULE: HEADINGS & TABLES GUARD
-    ============================================================================
+  /*
+============================================================================
+[REM BLOCK] PORT 1 MODULE: HEADINGS GUARD
+============================================================================
 */
 if ( ! empty( $active_ports['port_1'] ) ) {
 
     // Clean opening heading tags
     $incoming_payload = preg_replace(
         '/<(h[1-6])[^>]*>/i',
-        '<$1>',
-        $incoming_payload
-    );
-
-    // Clean table tags
-    $incoming_payload = preg_replace(
-        '/<(table|thead|tbody|tr|th|td)[^>]*>/i',
         '<$1>',
         $incoming_payload
     );
@@ -182,92 +182,164 @@ if ( ! empty( $active_ports['port_1'] ) ) {
 
 /*
 ============================================================================
-[REM BLOCK] PORT 2 MODULE: IMAGES OPEN PASS
+[REM BLOCK] PORT 3 MODULE: VIDEOS GUARD
 ============================================================================
 */
-if ( ! empty( $active_ports['port_2'] ) ) {
+if ( ! empty( $active_ports['port_3'] ) ) {
 
-    // Port 2 OPEN:
-    // Allow all image tags exactly as supplied.
-    // No format restriction.
-    // No URL filtering.
-    // No attribute stripping.
+    // Allowed video providers
+    $video_whitelist = array(
+        'youtube.com',
+        'youtu.be',
+        'vimeo.com',
+        'dailymotion.com',
+        'twitch.tv'
+    );
 
     $incoming_payload = preg_replace_callback(
-        '/<img\b[^>]*>/i',
-        function ( $matches ) {
+        '/<iframe\b([^>]*)>(.*?)<\/iframe>/i',
+        function( $matches ) use ( $video_whitelist ) {
 
-            return $matches[0];
+            // Full iframe string
+            $iframe = $matches[0];
+
+            /*
+            Search iframe string for approved video providers
+            */
+            $video_url = '';
+
+            foreach ( $video_whitelist as $provider ) {
+
+                if ( preg_match(
+                    '#(?:https?:)?//[^"\s<>]*' . preg_quote( $provider, '#' ) . '[^"\s<>]*#i',
+                    $iframe,
+                    $video_match
+                ) ) {
+
+                    $video_url = $video_match[0];
+                    break;
+
+                }
+            }
+
+            // Fix protocol-relative URLs
+            if ( strpos( $video_url, '//' ) === 0 ) {
+                $video_url = 'https:' . $video_url;
+            }
+
+            /*
+            Capture iframe dimensions
+            */
+            preg_match(
+                '/width\s*=\s*["\']([^"\']+)["\']/i',
+                $iframe,
+                $width_match
+            );
+
+            preg_match(
+                '/height\s*=\s*["\']([^"\']+)["\']/i',
+                $iframe,
+                $height_match
+            );
+
+            $width  = ! empty( $width_match[1] ) ? $width_match[1] : '400';
+            $height = ! empty( $height_match[1] ) ? $height_match[1] : '224';
+
+
+            /*
+            Replace iframe with WordPress embed format
+            */
+            return '[embed width="' . $width . '" height="' . $height . '"]'
+                . $video_url .
+                '[/embed]';
 
         },
         $incoming_payload
     );
+}
 
+
+  /*
+============================================================================
+[REM BLOCK] PORT 4 MODULE: TABLES GUARD
+============================================================================
+*/
+if ( ! empty( $active_ports['port_4'] ) ) {
+
+    // Clean table tags
+    $incoming_payload = preg_replace(
+        '/<(table|thead|tbody|tr|th|td)[^>]*>/i',
+        '<$1>',
+        $incoming_payload
+    );
+}
+
+    /*==========================================================================*/
+
+/*
+============================================================================
+[REM BLOCK] PORT 5 MODULE: COLOURS GUARD
+============================================================================
+*/
+if ( ! empty( $active_ports['port_5'] ) ) {
+
+    $incoming_payload = preg_replace_callback(
+        '/(\s+style=["\'])([^"\']*)(["\'])/i',
+        function( $hits ) {
+
+            $raw_style_rules = $hits[2];
+            $saved_css = [];
+
+            if ( preg_match(
+                '/\b(background-)?color\s*:\s*([^;]+)/i',
+                $raw_style_rules,
+                $matched
+            ) ) {
+                $saved_css[] = $matched[0];
+            }
+
+            return ! empty( $saved_css )
+                ? ' style="' . esc_attr( implode( '; ', $saved_css ) ) . ';"'
+                : '';
+
+        },
+        $incoming_payload
+    );
 }
 /*==========================================================================*/
 
-    /*
-    ============================================================================
-    [REM BLOCK] PORT 3 MODULE: VIDEOS GUARD
-    ============================================================================
-    */
-    if ( ! empty( $active_ports['port_3'] ) ) {
-        $incoming_payload = preg_replace_callback( '/<iframe\b([^>]*)>/i', function( $hits ) {
-            if ( preg_match( '/src=["\'][^"\']*(youtube\.com|youtu\.be|vimeo\.com)[^"\']*["\']/i', $hits ) ) {
-                preg_match( '/src=["\']([^"\']+)["\']/i', $hits, $url_extract );
-                return '<iframe src="' . esc_url( $url_extract ) . '" width="640" height="360" frameborder="0" allowfullscreen></iframe>';
-            }
-            return '';
-        }, $incoming_payload );
-    }
-    /*==========================================================================*/
 
+/*
+============================================================================
+[REM BLOCK] PORT 6 MODULE: FONTS GUARD
+============================================================================
+*/
+if ( ! empty( $active_ports['port_6'] ) ) {
 
-    /*
-    ============================================================================
-    [REM BLOCK] PORT 4 MODULE: LINKS GUARD
-    ============================================================================
-    */
-    if ( ! empty( $active_ports['port_4'] ) ) {
-        $incoming_payload = preg_replace_callback( '/<a\b([^>]*)>(.*?)<\/a>/i', function( $hits ) {
-            $tag_attributes = $hits;
-            $inner_text     = $hits;
-            if ( preg_match( '/href=["\'][^"\']*\.(mp4|mkv|avi|mov|mp3|ogg|jpg|jpeg|png|gif)\b[^"\']*["\']/i', $tag_attributes ) ) {
-                return $inner_text; 
-            }
-            if ( preg_match( '/href=["\']([^"\']+)["\']/i', $tag_attributes, $url_extract ) ) {
-                return '<a href="' . esc_url( $url_extract ) . '" rel="nofollow">' . $inner_text . '</a>';
-            }
-            return $inner_text;
-        }, $incoming_payload );
-    }
-    /*==========================================================================*/
+    $incoming_payload = preg_replace_callback(
+        '/(\s+style=["\'])([^"\']*)(["\'])/i',
+        function( $hits ) {
 
+            $raw_style_rules = $hits[2];
+            $saved_css = [];
 
-    /*
-    ============================================================================
-    [REM BLOCK] PORT 5 & 6 MODULE: CSS INLINE STYLING FILTERS
-    ============================================================================
-    */
-    if ( ! $css_enabled ) {
-        $incoming_payload = preg_replace( '/\s+style=["\'][^"\']*["\']/i', '', $incoming_payload );
-    } else {
-        $incoming_payload = preg_replace_callback( '/(\s+style=["\'])([^"\']*)(["\'])/i', function( $hits ) use ( $active_ports ) {
-            $raw_style_rules = $hits;
-            $saved_css       = [];
-            
-            if ( ! empty( $active_ports['port_5'] ) && preg_match( '/\b(background-)?color\s*:\s*([^;]+)/i', $raw_style_rules, $matched ) ) {
-                $saved_css[] = $matched;
+            if ( preg_match(
+                '/\bfont-family\s*:\s*([^;]+)/i',
+                $raw_style_rules,
+                $matched
+            ) ) {
+                $saved_css[] = $matched[0];
             }
-            if ( ! empty( $active_ports['port_6'] ) && preg_match( '/\bfont-family\s*:\s*([^;]+)/i', $raw_style_rules, $matched ) ) {
-                $saved_css[] = $matched;
-            }
-            
-            return ! empty( $saved_css ) ? ' style="' . esc_attr( implode( '; ', $saved_css ) ) . ';"' : '';
-        }, $incoming_payload );
-    }
-    /*==========================================================================*/
 
+            return ! empty( $saved_css )
+                ? ' style="' . esc_attr( implode( '; ', $saved_css ) ) . ';"'
+                : '';
+
+        },
+        $incoming_payload
+    );
+}
+/*==========================================================================*/
 
     // Rem: Compute and output dynamic metrics audit trace inside comments
     $count_post_firewall = mb_strlen( $incoming_payload, 'UTF-8' );
@@ -278,6 +350,9 @@ if ( ! empty( $active_ports['port_2'] ) ) {
     return $incoming_payload;
 
 }
+
+//end
+
 
 //end
 
