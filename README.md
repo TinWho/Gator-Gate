@@ -10,12 +10,12 @@ Content filtering is handled via simple checkboxes when creating or editing any 
 
 Opening and closing a port is a simple checkbox selection when you create/edit a forum.
 
-###  ***[ ] PORT 1:*** HEADINGS ALLOWED
-###  ***[ ] PORT 2:*** IMAGES ALLOWED
-###  ***[ ] PORT 3:*** VIDEOS ALLOWED
-###  ***[ ] PORT 4:*** TABLES ALLOWED
-###  ***[ ] PORT 5:*** COLOURS ALLOWED
-###  ***[ ] PORT 6:*** FONTS ALLOWED
+* [ ] Port 1: Headings allowed
+* [ ] Port 2: Images allowed
+* [ ] Port 3: Videos allowed
+* [ ] Port 4: Tables allowed
+* [ ] Port 5: Colours allowed
+* [ ] Port 6: Fonts allowed
 
 
 
