@@ -20,7 +20,8 @@ Opening and closing a port is a simple checkbox selection when you create/edit a
 
 
 
-## Installation & Testing
+
+### Installation & Testing
 
 This project is currently distributed as standalone PHP code snippets.
 Test all snippets in a sandbox or staging environment first. 
