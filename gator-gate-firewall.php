@@ -10,7 +10,6 @@
  */
 
 
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Block direct access
 }
@@ -153,6 +152,10 @@ function gator_gate_run_contextual_scrubber( $incoming_payload ) {
             $active_ports[ 'port_' . $i ] = get_post_meta( $forum_id, '_gator_gate_port_' . $i, true );
         }
     }
+// ============================================================================
+    // CAPTURE INITIAL Kb COUNT BEFORE ANY CLEANUP RUNS
+    // ============================================================================
+    $count_pre_firewall = mb_strlen( $incoming_payload, 'UTF-8' );
 
           /*
     ============================================================================
@@ -301,11 +304,9 @@ if ( empty( $active_ports['port_5'] ) ) {
     $count_post_firewall = mb_strlen( $incoming_payload, 'UTF-8' );
     $vaporised_bytes     = $count_pre_firewall - $count_post_firewall;
 
-    $incoming_payload .= "\n\n<!-- GATOR_GATE DEBUG [Forum:ID {$forum_id}]: [Before: {$count_pre_firewall} chars] -> [After: {$count_post_firewall} chars]. Purged {$vaporised_bytes} formatting bytes. -->";
+    $incoming_payload .= "\n\n<!-- GATOR_GATE FIREWALL [Forum:ID {$forum_id}]: [Before: {$count_pre_firewall} chars] -> [After: {$count_post_firewall} chars]. Purged {$vaporised_bytes} formatting bytes. -->";
 
     return $incoming_payload;
 }
 //end
-
-
 
