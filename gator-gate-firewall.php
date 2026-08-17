@@ -1,7 +1,7 @@
 /*
  * Code Snippet:       Gator-Gate-Firewall for bbPress
  * Description:        Advanced per-forum content filtration, clipboard copy-paste baggage reduction.
- * Version:            0.0.4-Alpa
+ * Version:            0.0.4-Alpha
  * AUTHOR:             Tin Who (https://tinfoilwho.com)
  * License:            GPL-2.0-or-later
  *
