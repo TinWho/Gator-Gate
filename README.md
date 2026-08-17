@@ -11,12 +11,7 @@ Content filtering is handled via simple checkboxes when creating or editing any 
 ### Port Configuration
 Opening and closing a port is a simple checkbox selection when you create or edit a forum:
 
-* [ ] Port 1: Headings allowed
-* [ ] Port 2: Images allowed
-* [ ] Port 3: Videos allowed
-* [ ] Port 4: Tables allowed
-* [ ] Port 5: Colours allowed
-* [ ] Port 6: Fonts allowed
+![](images/GatorGateFirewall01.png)
 
 ### Extra Security for Videos
 **Security Port 3:** Any iframe videos are changed to a placeholder token, such as `[embed width="400" height="224"]https://www.youtube.com/embed/watch?_ref[/embed]`, when being saved to the database. The Visual Editor, which is switched off by default in bbPress, is then re-enabled with a code snippet to process this placeholder for video previews and resizing. Hence, the **Gator-Gate-Editor** safely changes these embed placeholders back to active clean iframes on the front end as a secure workaround.
